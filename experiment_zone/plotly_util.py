@@ -7,16 +7,13 @@ import skimage.exposure as exposure
 #   exemple -> [(img1, "image source"), (img2, "image traitée")]
 # grid_shape : format d'affichage en (row, col)
 #   exemple -> (3,2) pour afficher 6 images en 2 par 2
-# RGB : est-ce que l'image est RGB ou HSV 
 def displayImages(images, grid_shape):
     x,y = grid_shape
     # Create subplots
     fig, axs = plt.subplots(x, y, figsize=(15,10))
     axs = axs.flatten()
 
-    for i, (image, title, RGB) in enumerate(images):
-        if not RGB:
-            image = cv2.cvtColor(image, cv2.COLOR_HSV2RGB)
+    for i, (image, title) in enumerate(images):
         axs[i].imshow(image, cmap='gray')
         axs[i].axis('off')
         if title is None:
