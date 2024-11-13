@@ -1,3 +1,6 @@
-opencv
+opencv-python
 numpy
 tk
+ipykernel
+matplotlib
+scikit-image
