@@ -4,13 +4,14 @@ import os
 import sys
 import argparse
 
+refSize = (2040, 1536)
+
 # Try this syntax :
 # python fourPointTransform.py -i input.png -o output_dir -tl 10,10 -bl 10,100 -tr 100,10 -br 100,100
 def fourPointTransform(imagePath, topLeft, bottomLeft, topRight, bottomRight):
     # Ouverture de l'image
     image = cv2.imread(imagePath)
     rgb_image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
-
 
     # calculating the distance between points ( Pythagorean theorem ) 
     height_1 = np.sqrt(((topLeft[0] - bottomLeft[0]) ** 2) + ((topLeft[1] - bottomLeft[1]) ** 2))
@@ -27,16 +28,15 @@ def fourPointTransform(imagePath, topLeft, bottomLeft, topRight, bottomRight):
 
     # output points for new transformed image
     output_pts = np.float32([[0, 0],
-                            [0, max_width],
-                            [max_height , 0],
-                            [max_height , max_width]])
+                            [0, max_height],
+                            [max_width , 0],
+                            [max_width , max_height]])
 
 
     # Compute the perspective transform M
     M = cv2.getPerspectiveTransform(input_pts,output_pts)
 
-    out = cv2.warpPerspective(rgb_image,M,(max_height, max_width),flags=cv2.INTER_LINEAR)
-    out = cv2.resize(out, image.shape[1::-1])
+    out = cv2.warpPerspective(rgb_image,M,(max_width, max_height),flags=cv2.INTER_LINEAR)
 
     return out
 
@@ -70,9 +70,6 @@ def argParsing():
         sys.exit(1)
     
     args = parser.parse_args()
-    
-    if not os.path.isfile(args.reference):
-        raise FileNotFoundError(f"The reference file {args.reference} does not exist.")
     
     if not os.path.isfile(args.input):
         raise FileNotFoundError(f"The input file {args.input} does not exist.")
