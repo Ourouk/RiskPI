@@ -9,7 +9,7 @@ import cv2
 # Example of usage:
 # python histogram_match.py -r ../data/gsm/amerique_latine.jpg -i ../data/gsm/amerique_latine_dark.jpg -o ../data/gsm/outputs -n newName.jpg
 
-def main(reference_path, input_path, output_dir, save_histogram, use_HSV, output_name=None):
+def RiskPI_HistogramMatch(reference_path, input_path, output_dir, save_histogram, use_HSV, output_name=None):
     if output_name is None:
         output_name = input_path
     
@@ -89,4 +89,4 @@ if __name__ == "__main__":
     if not os.path.isdir(args.output):
         raise NotADirectoryError(f"The output directory {args.output} does not exist.")
     
-    main(args.reference, args.input, args.output, args.histogram, args.HSV, args.name)
+    RiskPI_HistogramMatch(args.reference, args.input, args.output, args.histogram, args.HSV, args.name)
