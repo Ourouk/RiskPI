@@ -16,7 +16,7 @@ def get_mask_pieces(filePath, morphology, rmNoise):
     imHSV = cv2.cvtColor(im, cv2.COLOR_RGB2HSV)
 
     # Open the config file with ranges
-    color_range = json.load(open('HSV_color_range.json', 'r'))
+    color_range = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'HSV_color_range.json'), 'r'))
 
     # Mask for red
     lowerR1 = np.array(color_range['red']['lower'])
