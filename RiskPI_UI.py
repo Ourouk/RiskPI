@@ -8,7 +8,7 @@ from experiment_zone.mask_pieces import get_mask_pieces
 
 # Placeholder for your backend script
 def process_image(input_path):
-    full_mask, _ = get_mask_pieces(input_path, True, True)
+    full_mask, _ = get_mask_pieces(input_path, False, False)
     return full_mask
 
 class ImageProcessingApp:

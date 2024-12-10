@@ -5,6 +5,13 @@ import argparse
 import sys
 import os
 
+# !!! State of colors :
+# Red, Green : OK
+# Yellow : Impossible -> Too close to the background's yellow
+# Purple : Fine -> Infantry's stick is lost tho..
+# Blue : OK but -> if we need to filter the water, the mask get brittled and then, if the piece is too small, it will be removed
+#               -> Otherwise, we can enlargen the range and it's OK
+
 # Try this : 
 # python .\mask_pieces.py -i ..\data\gsm\small_images\im31.jpg -o ..\data\gsm\outputs -n test.jpg -d -m -r
 
@@ -43,6 +50,16 @@ def get_mask_pieces(filePath, morphology, rmNoise):
     upperY = np.array(color_range['yellow']['upper'])
     maskY = cv2.inRange(imHSV, lowerY, upperY)
     
+    # Mask for Purple
+    lowerP = np.array(color_range['purple']['lower'])
+    upperP = np.array(color_range['purple']['upper'])
+    maskP = cv2.inRange(imHSV, lowerP, upperP)
+    
+    # Mask for black
+    lowerBl = np.array(color_range['black']['lower'])
+    upperBl = np.array(color_range['black']['upper'])
+    maskBlack = cv2.inRange(imHSV, lowerBl, upperBl)
+    
     # Applies pre-processing if required
     if morphology:
         maskR1 = cv2.morphologyEx(maskR1, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
@@ -50,6 +67,8 @@ def get_mask_pieces(filePath, morphology, rmNoise):
         maskG = cv2.morphologyEx(maskG, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
         maskB = cv2.morphologyEx(maskB, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
         maskY = cv2.morphologyEx(maskY, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
+        maskP = cv2.morphologyEx(maskP, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
+        maskBlack = cv2.morphologyEx(maskBlack, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
         
     if rmNoise:
         maskR1 = removeNoise(maskR1)
@@ -57,6 +76,8 @@ def get_mask_pieces(filePath, morphology, rmNoise):
         maskG = removeNoise(maskG)
         maskB = removeNoise(maskB)
         maskY = removeNoise(maskY)
+        maskP = removeNoise(maskP)
+        maskBlack = removeNoise(maskBlack)
 
     # Add the masks
     mask = np.zeros_like(maskR1)
@@ -64,8 +85,10 @@ def get_mask_pieces(filePath, morphology, rmNoise):
     cv2.bitwise_or(mask, maskG, mask)
     cv2.bitwise_or(mask, maskB, mask)
     cv2.bitwise_or(mask, maskY, mask)
+    cv2.bitwise_or(mask, maskP, mask)
+    cv2.bitwise_or(mask, maskBlack, mask)
 
-    return mask, [maskR1, maskR2, maskG, maskB, maskY]
+    return mask, [maskR1, maskR2, maskG, maskB, maskY, maskP, maskBlack]
 
 def removeNoise(im):
     nb_blobs, im_with_separated_blobs, stats, _ = cv2.connectedComponentsWithStats(im)
@@ -143,7 +166,7 @@ def saveMasks(masks, outputPath, outputFilename):
     os.mkdir(outputFolder)
     print(f"Saving debug masks to {outputFolder}")
     
-    colors = ['red1', 'red2', 'green', 'blue', 'yellow']
+    colors = ['red1', 'red2', 'green', 'blue', 'yellow', 'purple', 'black']
     
     for i, color in enumerate(colors):
         output_file = os.path.join(outputFolder, f"{color}.jpg")
